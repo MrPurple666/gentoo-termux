@@ -4,9 +4,10 @@ time1="$( date +"%r" )"
 
 install_gentoo () {
     directory="gentoo-fs"
-    TARBALL_URL="https://gentoo.osuosl.org/releases/arm64/autobuilds/current-stage3-arm64-openrc/stage3-arm64-openrc-20250216T233330Z.tar.xz"
-    TARBALL_SHA256="c5b8517a16975b0e35d61832e6c09518722eafcc172af742deced5c2a7a6862e"
-    TARBALL_NAME="stage3-arm64-openrc-20250216T233330Z.tar.xz"
+    TARBALL_URL="https://gentoo.osuosl.org/releases/arm64/autobuilds/latest-stage3-arm64-openrc.txt"
+    TARBALL_NAME=$(curl -s $TARBALL_URL | grep -oP 'stage3-arm64-openrc-\d{8}T\d{6}Z\.tar\.xz')
+    TARBALL_URL="https://gentoo.osuosl.org/releases/arm64/autobuilds/current-stage3-arm64-openrc/$TARBALL_NAME"
+    TARBALL_SHA256=$(curl -s $TARBALL_URL.sha256 | awk '{print $1}')
 
     if [ -d "$directory" ]; then
         first=1
@@ -108,16 +109,11 @@ EOM
     chmod +x "$bin"
     printf "\x1b[38;5;214m[${time1}]\e[0m \x1b[38;5;83m[Installer thread/INFO]:\e[0m \x1b[38;5;87m Successfully made startgentoo.sh executable!\n"
     
-   # Configuração automática do emerge --sync
+    # Configuração automática do emerge --sync
     printf "\x1b[38;5;214m[${time1}]\e[0m \x1b[38;5;83m[Installer thread/INFO]:\e[0m \x1b[38;5;87m Synchronizing packages, this can take a long time...\n"
+    proot -r "$directory" -w / /bin/bash -c "emerge-webrsync"
 
     # Configuração automática do Portage
-    printf "\x1b[38;5;214m[${time1}]\e[0m \x1b[38;5;83m[Installer thread/INFO]:\e[0m \x1b[38;5;87m Configuring Portage, please wait...\n"
-    
-    # Sync
-    proot -r "$directory" -w / /bin/bash -c "emerge --sync"
-
-    # Profiles
     printf "\x1b[38;5;214m[${time1}]\e[0m \x1b[38;5;83m[Installer thread/INFO]:\e[0m \x1b[38;5;87m Configuring Portage, please wait...\n"
     
     # Usar proot para configurar o perfil do Gentoo
