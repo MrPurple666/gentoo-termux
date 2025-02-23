@@ -127,11 +127,12 @@ EOM
     # Configurar as opções básicas de compilação
     cat <<EOF > "$directory/etc/portage/make.conf"
 # Configurações básicas do Portage
-CFLAGS="-O2 -pipe"
+CFLAGS="-O2 -pipe -march=armv8-a"
 CXXFLAGS="\${CFLAGS}"
 CHOST="aarch64-unknown-linux-gnu"
-MAKEOPTS="-j6"
-USE="bindist mmx sse sse2"
+MAKEOPTS="-j4"
+USE="-X -gtk -gnome -qt5 -kde bindist"
+FEATURES="parallel-fetch"
 ACCEPT_LICENSE="*"
 EOF
 
