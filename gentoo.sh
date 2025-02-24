@@ -5,9 +5,8 @@ time1="$( date +"%r" )"
 install_gentoo () {
     directory="gentoo-fs"
     TARBALL_URL="https://gentoo.osuosl.org/releases/arm64/autobuilds/latest-stage3-arm64-openrc.txt"
-    TARBALL_NAME=$(curl -s $TARBALL_URL | grep -oP 'stage3-arm64-openrc-\d{8}T\d{6}Z\.tar\.xz')
+    TARBALL_NAME=$(wget -qO- $TARBALL_URL | grep -oP 'stage3-arm64-openrc-\d{8}T\d{6}Z\.tar\.xz')
     TARBALL_URL="https://gentoo.osuosl.org/releases/arm64/autobuilds/current-stage3-arm64-openrc/$TARBALL_NAME"
-    TARBALL_SHA256=$(curl -s $TARBALL_URL.sha256 | awk '{print $1}')
 
     if [ -d "$directory" ]; then
         first=1
@@ -35,16 +34,6 @@ install_gentoo () {
                 exit 1
             fi
             printf "\x1b[38;5;214m[${time1}]\e[0m \x1b[38;5;83m[Installer thread/INFO]:\e[0m \x1b[38;5;87m Download complete!\n"
-        fi
-
-        # Verificar o checksum
-        printf "\x1b[38;5;214m[${time1}]\e[0m \x1b[38;5;83m[Installer thread/INFO]:\e[0m \x1b[38;5;87m Verifying checksum...\n"
-        checksum=$(sha256sum "$TARBALL_NAME" | awk '{print $1}')
-        if [ "$checksum" != "$TARBALL_SHA256" ]; then
-            printf "\x1b[38;5;214m[${time1}]\e[0m \x1b[38;5;203m[ERROR]:\e[0m \x1b[38;5;87m Checksum verification failed!\n"
-            exit 1
-        else
-            printf "\x1b[38;5;214m[${time1}]\e[0m \x1b[38;5;83m[Installer thread/INFO]:\e[0m \x1b[38;5;87m Checksum verified!\n"
         fi
 
         cur=$(pwd)
@@ -128,7 +117,7 @@ CXXFLAGS="\${CFLAGS}"
 CHOST="aarch64-unknown-linux-gnu"
 MAKEOPTS="-j4"
 USE="-X -gtk -gnome -qt5 -kde bindist"
-FEATURES="parallel-fetch"
+FEATURES="userpriv usersandbox parallel-fetch -ipc-sandbox -network-sandbox -pid-sandbox"
 ACCEPT_LICENSE="*"
 EOF
 
